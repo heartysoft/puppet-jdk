@@ -17,10 +17,11 @@ class jdk(
     ensure  => present,
     source  => $merged_java['tarball'],
   }
-  ~>
+  ->
   exec { 'unpack-java':
     command     => "tar -xzf /usr/lib/jvm/${merged_java['file_name']} -C /usr/lib/jvm",
     path        => '/bin',
+    creates     => "${merged_java['extract']}/bin",
   }
   ->
   file { '/usr/lib/jvm/jdk':
@@ -29,9 +30,10 @@ class jdk(
   }
   ->
   exec { 'update-alternatives':
-    command     => "update-alternatives --install /usr/bin/java java /usr/lib/jvm/jdk/bin/java 1; update-alternatives --install /user/bin/javaws javaws /user/lib/jvm/jdk/bin/javaws 1; update-alternatives --set java /usr/lib/jvm/jdk/bin/java; update-alternatives --install /usr/bin/jps jps /usr/lib/jvm/jdk/bin/jps 1",
+    command     => "update-alternatives --install /usr/bin/java java /usr/lib/jvm/jdk/bin/java 1; update-alternatives --install /user/bin/javaws javaws /user/lib/jvm/jdk/bin/javaws 1; update-alternatives --set java /usr/lib/jvm/jdk/bin/java; update-alternatives --install /usr/bin/jps jps /usr/lib/jvm/jdk/bin/jps 1; touch /usr/local/java_alt_updated",
     cwd         => '/',
     path        => '/bin:/usr/bin',
+    creates     => '/usr/local/java_alt_updated',
   }
   ->
   file { '/etc/profile.d/java.sh':
